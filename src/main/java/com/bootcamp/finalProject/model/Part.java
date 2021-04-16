@@ -74,6 +74,4 @@ public class Part {
     public int hashCode() {
         return Objects.hash(idPart, partCode);
     }
-
-
 }

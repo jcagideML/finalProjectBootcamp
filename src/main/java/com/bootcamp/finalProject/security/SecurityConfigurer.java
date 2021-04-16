@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -37,17 +38,16 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http.csrf().disable();
-        // Apply JWT
+        //Apply JWT
         //http.apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
 
         http.authorizeRequests()
                 .antMatchers("/login").permitAll()
                 .antMatchers("/register").permitAll()
                 .antMatchers("/load").permitAll()
-                .antMatchers("/ping").permitAll()
                 //linea que activa o desactiva que los demas endopoints necesiten autenticacion
-                //.anyRequest().authenticated()
-                .anyRequest().permitAll()
+                .anyRequest().authenticated()
+                //.anyRequest().permitAll()
                 .and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
@@ -56,6 +56,13 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
 
+    }
+
+    @Override
+    public void configure(WebSecurity web) {
+        web.ignoring().antMatchers("/v3/api-docs",
+                "/swagger-ui.html",
+                "/swagger-ui/**");
     }
 
     @Bean

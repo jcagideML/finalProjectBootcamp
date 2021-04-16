@@ -8,7 +8,6 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -34,4 +33,3 @@ public class SubsidiaryStock {
     @JsonBackReference
     private Subsidiary subsidiary;
 }
-

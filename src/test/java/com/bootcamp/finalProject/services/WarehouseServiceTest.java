@@ -56,7 +56,7 @@ public class WarehouseServiceTest {
     void initSetUp() {
         openMocks(this);
 
-         user = org.springframework.security.core.userdetails.User
+        user = org.springframework.security.core.userdetails.User
                 .withUsername("userName")
                 .password("pass")
                 .authorities(new ArrayList<>())
@@ -436,8 +436,7 @@ public class WarehouseServiceTest {
     }
 
     @Test
-    public void newOrderWithoutPart()throws PartNotExistException, NotEnoughStock, InvalidAccountTypeExtensionException
-    {
+    public void newOrderWithoutPart() throws PartNotExistException, NotEnoughStock, InvalidAccountTypeExtensionException {
         //aca hace falta mockear el subsidiary.
         Subsidiary subsidiary = new Subsidiary();
 
@@ -482,8 +481,7 @@ public class WarehouseServiceTest {
     }
 
     @Test
-    public void newOrderNotEnoughStock()throws PartNotExistException, NotEnoughStock, InvalidAccountTypeExtensionException
-    {
+    public void newOrderNotEnoughStock() throws PartNotExistException, NotEnoughStock, InvalidAccountTypeExtensionException {
         //aca hace falta mockear el subsidiary.
         Subsidiary subsidiary = new Subsidiary();
 
@@ -532,9 +530,9 @@ public class WarehouseServiceTest {
         //Assert
         Assertions.assertThrows(NotEnoughStock.class, () -> warehouseService.newOrder(orderDTO, user));
     }
+
     @Test
-    public void newOrderInvalidAccountType()throws PartNotExistException, NotEnoughStock, InvalidAccountTypeExtensionException
-    {
+    public void newOrderInvalidAccountType() throws PartNotExistException, NotEnoughStock, InvalidAccountTypeExtensionException {
         //aca hace falta mockear el subsidiary.
         Subsidiary subsidiary = new Subsidiary();
 
@@ -579,8 +577,9 @@ public class WarehouseServiceTest {
         when(userService.getSubsidiaryByUsername(user)).thenReturn(subsidiary);
 
         //Assert
-        Assertions.assertThrows(InvalidAccountTypeExtensionException.class, () -> warehouseService.newOrder(orderDTO , user));
+        Assertions.assertThrows(InvalidAccountTypeExtensionException.class, () -> warehouseService.newOrder(orderDTO, user));
     }
+
     @Test
     public void findSubsidiaryStock() throws SubsidiaryNotFoundException {
         //Arrange
@@ -679,6 +678,7 @@ public class WarehouseServiceTest {
         //Assert
         Assertions.assertEquals(expect, order);
     }
+
     @Test
     public void changeDeliveryStatusToCancel() throws InternalExceptionHandler {
         //Arrange
@@ -724,7 +724,7 @@ public class WarehouseServiceTest {
         when(partRepository.save(part)).thenReturn(part);
         when(orderRepository.save(order)).thenReturn(order);
 
-        warehouseService.changeDeliveryStatus("0001-00000001","C");
+        warehouseService.changeDeliveryStatus("0001-00000001", "C");
 
         //Assert
         Assertions.assertEquals(expect, order);
@@ -740,10 +740,13 @@ public class WarehouseServiceTest {
         List<SubsidiaryStock> subsidiaryStocks = new ArrayList<>();
         subsidiary.setSubsidiaryStocks(subsidiaryStocks);
 
+        Date currentDate = new Date();
+        Date deliveredDate = new Date();
         Order order = new Order();
         order.setIdOrder(1L);
         order.setSubsidiary(subsidiary);
-        order.setOrderDate(new Date());
+        order.setOrderDate(currentDate);
+        order.setDeliveredDate(deliveredDate);
         order.setDeliveryStatus("D");
         Part part = new Part();
         part.setPartCode(11111112);
@@ -760,8 +763,8 @@ public class WarehouseServiceTest {
         Order expect = new Order();
         expect.setIdOrder(1L);
         expect.setSubsidiary(subsidiary);
-        expect.setOrderDate(new Date());
-        expect.setDeliveredDate(new Date());
+        expect.setOrderDate(currentDate);
+        expect.setDeliveredDate(deliveredDate);
         expect.setDeliveryStatus("F");
         expect.setOrderDetails(orderList);
 
@@ -772,7 +775,7 @@ public class WarehouseServiceTest {
         when(partRepository.save(part)).thenReturn(part);
         when(orderRepository.save(order)).thenReturn(order);
 
-        warehouseService.changeDeliveryStatus("0001-00000001","F");
+        warehouseService.changeDeliveryStatus("0001-00000001", "F");
 
         //Assert
         Assertions.assertEquals(expect, order);
@@ -810,7 +813,7 @@ public class WarehouseServiceTest {
         when(orderRepository.findByIdOrderAndSubsidiary(1L, subsidiary)).thenReturn(Optional.of(order));
 
         //Assert
-        Assertions.assertThrows(OrderDeliveryStatusIsconcludedException.class, () -> warehouseService.changeDeliveryStatus("0001-00000001","F"));
+        Assertions.assertThrows(OrderDeliveryStatusIsconcludedException.class, () -> warehouseService.changeDeliveryStatus("0001-00000001", "F"));
     }
 
     @Test
@@ -825,10 +828,12 @@ public class WarehouseServiceTest {
 
         SubsidiaryStock subsidiaryStock = new SubsidiaryStock();
 
+        Date currentDate = new Date();
+
         Order order = new Order();
         order.setIdOrder(1L);
         order.setSubsidiary(subsidiary);
-        order.setOrderDate(new Date());
+        order.setOrderDate(currentDate);
         order.setDeliveryStatus("P");
         order.setDeliveredDate(new Date());
         Part part = new Part();
@@ -846,16 +851,16 @@ public class WarehouseServiceTest {
         Order expect = new Order();
         expect.setIdOrder(1L);
         expect.setSubsidiary(subsidiary);
-        expect.setOrderDate(new Date());
+        expect.setOrderDate(currentDate);
         expect.setDeliveredDate(new Date());
         expect.setDeliveryStatus("F");
         expect.setOrderDetails(orderList);
 
         //Act
-        when(subsidiaryStockRepository.findByIdPart(1L ,subsidiary.getIdSubsidiary())).thenReturn(subsidiaryStock);
+        when(subsidiaryStockRepository.findByIdPart(1L, subsidiary.getIdSubsidiary())).thenReturn(subsidiaryStock);
         when(subsidiaryStockRepository.save(subsidiaryStock)).thenReturn(subsidiaryStock);
 
-        warehouseService.finishDeliveryStatus(order,subsidiary);
+        warehouseService.finishDeliveryStatus(order, subsidiary);
 
         System.out.println(expect.toString());
         System.out.println(order.toString());

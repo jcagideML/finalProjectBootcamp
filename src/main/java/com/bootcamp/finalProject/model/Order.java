@@ -1,7 +1,6 @@
 package com.bootcamp.finalProject.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import jdk.dynalink.linker.LinkerServices;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +11,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-@Getter @Setter
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -23,7 +23,9 @@ public class Order {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Order order = (Order) o;
-        return Objects.equals(idOrder, order.idOrder) && Objects.equals(orderDate, order.orderDate) && Objects.equals(deliveryDate, order.deliveryDate) && Objects.equals(deliveredDate.getDate(), order.deliveredDate.getDate()) && Objects.equals(deliveryStatus, order.deliveryStatus) && Objects.equals(orderDetails, order.orderDetails) && Objects.equals(subsidiary, order.subsidiary);
+        return Objects.equals(idOrder, order.idOrder) && Objects.equals(orderDate, order.orderDate)
+                && Objects.equals(deliveryDate, order.deliveryDate) && Objects.equals(deliveryStatus, order.deliveryStatus)
+                && Objects.equals(orderDetails, order.orderDetails) && Objects.equals(subsidiary, order.subsidiary);
     }
 
     @Override
@@ -39,7 +41,7 @@ public class Order {
     private Date orderDate;
     @Column(nullable = false)
     private Date deliveryDate;
-    @Column(nullable = true)
+
     private Date deliveredDate;
     @Column(nullable = false, length = 1)
     private String deliveryStatus;

@@ -7,7 +7,10 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
-@Getter @Setter
+import java.util.Objects;
+
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -26,9 +29,9 @@ public class Subsidiary {
     private String phone;
     @Column(nullable = false)
     private String country;
-
+    @Column(name = "days_to_shipping", nullable = false)
+    private Integer daysToShipping;
     @OneToMany(mappedBy = "subsidiary", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
-   // @OrderColumn(name = "order_index")
     private List<Order> orders;
 
     @OneToMany(mappedBy = "subsidiary", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
@@ -38,17 +41,16 @@ public class Subsidiary {
     private List<User> users;
 
     @Override
-    public boolean equals(Object obj) {
-        Subsidiary s = (Subsidiary) obj;
-        if(
-        this.address.equals(s.getAddress()) &&
-        this.name.equals(s.getName())&&
-        this.phone.equals(s.getPhone()) &&
-        this.country.equals(s.getCountry())
-        ){
-            return true;
-        }else {
-            return false;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Subsidiary that = (Subsidiary) o;
+        return Objects.equals(name, that.name) && Objects.equals(address, that.address)
+                && Objects.equals(phone, that.phone) && Objects.equals(country, that.country);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, address, phone, country);
     }
 }

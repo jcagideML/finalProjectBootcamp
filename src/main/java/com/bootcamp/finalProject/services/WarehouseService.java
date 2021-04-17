@@ -13,15 +13,11 @@ import com.bootcamp.finalProject.utils.OrderResponseMapper;
 import com.bootcamp.finalProject.utils.SubsidiaryResponseMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.bootcamp.finalProject.utils.MapperUtils.completeNumberByLength;
 import static com.bootcamp.finalProject.utils.MapperUtils.getDifferencesInDays;
@@ -46,6 +42,23 @@ public class WarehouseService implements IWarehouseService {
 
     @Autowired
     private IUserService userService;
+
+    public WarehouseService() {
+        initTask();
+    }
+
+    private void initTask() {//TODO:REALIZAR EL CHECKORDERS.
+        TimerTask repeatedTask = new TimerTask() {
+            public void run() {
+                checkOrders();
+            }
+        };
+        Timer timer = new Timer("Timer");
+
+        long delay = 10000L; //TODO:averiguar tiempo que tarda la app en comenzar.
+        long period = /*1000L * 60L * 60L * 24L*/10000; //TODO: realizar el chequeo cada 4 horas. Pensar este numero.
+        timer.scheduleAtFixedRate(repeatedTask, delay, period);
+    }
 
     @Override
     public SubsidiaryResponseDTO findSubsidiaryOrders(OrderRequestDTO orderRequest) throws OrderTypeException, DeliveryStatusException, SubsidiaryNotFoundException {
@@ -86,40 +99,6 @@ public class WarehouseService implements IWarehouseService {
         return new SubsidiaryResponseMapper().toStockDTO(subsidiary);
     }
 
-    public void changeDeliveryStatus(String orderNumberCM, String newStatus) throws InternalExceptionHandler {
-        Long orderId = Long.valueOf(OrderNumberCMUtil.getNumberOR(orderNumberCM));
-
-        Long idSubsidiary = Long.valueOf(OrderNumberCMUtil.getNumberCE(orderNumberCM));
-        Subsidiary subsidiary = subsidiaryRepository.findById(idSubsidiary).orElseThrow(SubsidiaryNotFoundException::new);
-        Order order = orderRepository.findByIdOrderAndSubsidiary(orderId, subsidiary).orElseThrow(OrderIdNotFoundException::new);
-
-        if ((order.getDeliveryStatus().equals(DeliveryStatus.PENDING)
-                || order.getDeliveryStatus().equals(DeliveryStatus.DELAYED))) {
-
-            if (newStatus.equals(DeliveryStatus.CANCELED)) {
-                cancelDeliveryStatus(order);
-            } else if (newStatus.equals(DeliveryStatus.FINISHED)) {
-                finishDeliveryStatus(order, subsidiary);
-            }
-            orderRepository.save(order);
-        } else {
-            //excepcion de que la orden habia sido cancelada o finalizada con anterioridad o
-            throw new OrderDeliveryStatusIsconcludedException(order.getDeliveryStatus());
-        }
-    }
-
-    public void cancelDeliveryStatus(Order order) {
-        List<OrderDetail> orderDetail = order.getOrderDetails();
-
-        orderDetail.forEach(partToUpdate -> {
-            Part part = partRepository.findById(partToUpdate.getPartOrder().getIdPart()).orElseThrow();
-            part.setQuantity(part.getQuantity() + partToUpdate.getQuantity());
-            partRepository.save(part);
-        });
-        order.setDeliveryStatus(DeliveryStatus.CANCELED);
-        orderRepository.save(order);
-    }
-
     public OrderDTO newOrder(OrderDTO order, UserDetails user) throws InvalidAccountTypeExtensionException, NotEnoughStock, PartNotExistException {
         Subsidiary subsidiary = userService.getSubsidiaryByUsername(user);
 
@@ -127,7 +106,7 @@ public class WarehouseService implements IWarehouseService {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(current);
 
-        calendar.add(Calendar.DAY_OF_YEAR, 3/*TODO:agregar un metodo que dada una subsidiaria me diga cuanto tarda en llegar el pedido.*/);
+        calendar.add(Calendar.DAY_OF_YEAR, subsidiary.getDaysToShipping());
 
         Order orderReturn = new Order(null, current, calendar.getTime(), null, DeliveryStatus.PENDING, null, subsidiary);
 
@@ -146,7 +125,7 @@ public class WarehouseService implements IWarehouseService {
         order.setOrderDate(datePattern.format(orderReturn.getOrderDate()));
         order.setDeliveryDate(datePattern.format(calendar.getTime()));
         order.setDeliveryStatus(DeliveryStatus.PENDING);
-        order.setDaysDelayed(getDifferencesInDays(orderReturn.getDeliveryDate(), orderReturn.getDeliveredDate()));//TODO CHANGE DeliveredDate check
+        order.setDaysDelayed(getDifferencesInDays(orderReturn.getDeliveryDate(), orderReturn.getDeliveredDate()));
         return order;
     }
 
@@ -170,6 +149,40 @@ public class WarehouseService implements IWarehouseService {
         return orderDetailReturn;
     }
 
+    public void changeDeliveryStatus(String orderNumberCM, String newStatus) throws InternalExceptionHandler {
+        Long orderId = Long.valueOf(OrderNumberCMUtil.getNumberOR(orderNumberCM));
+
+        Long idSubsidiary = Long.valueOf(OrderNumberCMUtil.getNumberCE(orderNumberCM));
+        Subsidiary subsidiary = subsidiaryRepository.findById(idSubsidiary).orElseThrow(SubsidiaryNotFoundException::new);
+        Order order = orderRepository.findByIdOrderAndSubsidiary(orderId, subsidiary).orElseThrow(OrderIdNotFoundException::new);
+
+        if ((order.getDeliveryStatus().equals(DeliveryStatus.PENDING)
+                || order.getDeliveryStatus().equals(DeliveryStatus.DELAYED))) {
+
+            if (newStatus.equals(DeliveryStatus.CANCELED)) {
+                cancelDeliveryStatus(order);
+            } else if (newStatus.equals(DeliveryStatus.FINISHED)) {
+                finishDeliveryStatus(order, subsidiary);
+            }
+            orderRepository.save(order);
+        } else {
+            //excepcion de que la orden habia sido cancelada o finalizada con anterioridad
+            throw new OrderDeliveryStatusIsconcludedException(order.getDeliveryStatus());
+        }
+    }
+
+    public void cancelDeliveryStatus(Order order) {
+        List<OrderDetail> orderDetail = order.getOrderDetails();
+
+        orderDetail.forEach(partToUpdate -> {
+            Part part = partRepository.findById(partToUpdate.getPartOrder().getIdPart()).orElseThrow();
+            part.setQuantity(part.getQuantity() + partToUpdate.getQuantity());
+            partRepository.save(part);
+        });
+        order.setDeliveryStatus(DeliveryStatus.CANCELED);
+        orderRepository.save(order);
+    }
+
     public void finishDeliveryStatus(Order order, Subsidiary subsidiary) {
         List<OrderDetail> orderDetails = order.getOrderDetails();
         SubsidiaryStock temp;
@@ -189,5 +202,9 @@ public class WarehouseService implements IWarehouseService {
         Date now = new Date();
         order.setDeliveryStatus(DeliveryStatus.FINISHED);
         order.setDeliveredDate(now);
+    }
+
+    public void checkOrders() {
+        System.out.println("Tarea programada realizada con éxito.");//TODO: realizar el chequeo propiamente dicho.
     }
 }

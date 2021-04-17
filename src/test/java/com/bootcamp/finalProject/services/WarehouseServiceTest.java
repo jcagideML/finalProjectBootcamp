@@ -386,6 +386,7 @@ public class WarehouseServiceTest {
     public void newOrder() throws PartNotExistException, NotEnoughStock, InvalidAccountTypeExtensionException {
         //aca hace falta mockear el subsidiary.
         Subsidiary subsidiary = new Subsidiary();
+        subsidiary.setDaysToShipping(10);
 
         //Arrange
         Order order = new Order();
@@ -439,6 +440,7 @@ public class WarehouseServiceTest {
     public void newOrderWithoutPart() throws PartNotExistException, NotEnoughStock, InvalidAccountTypeExtensionException {
         //aca hace falta mockear el subsidiary.
         Subsidiary subsidiary = new Subsidiary();
+        subsidiary.setDaysToShipping(10);
 
         //Arrange
         Order order = new Order();
@@ -475,6 +477,7 @@ public class WarehouseServiceTest {
         when(partRepository.findByPartCode(11111112)).thenReturn(null);
         when(subsidiaryRepository.findById(1L)).thenReturn(Optional.of(subsidiary));
         when(orderRepository.save(order)).thenReturn(order);
+        when(userService.getSubsidiaryByUsername(user)).thenReturn(subsidiary);
 
         //Assert
         Assertions.assertThrows(PartNotExistException.class, () -> warehouseService.newOrder(orderDTO, user));
@@ -484,6 +487,7 @@ public class WarehouseServiceTest {
     public void newOrderNotEnoughStock() throws PartNotExistException, NotEnoughStock, InvalidAccountTypeExtensionException {
         //aca hace falta mockear el subsidiary.
         Subsidiary subsidiary = new Subsidiary();
+        subsidiary.setDaysToShipping(10);
 
         //Arrange
         Order order = new Order();
@@ -535,7 +539,7 @@ public class WarehouseServiceTest {
     public void newOrderInvalidAccountType() throws PartNotExistException, NotEnoughStock, InvalidAccountTypeExtensionException {
         //aca hace falta mockear el subsidiary.
         Subsidiary subsidiary = new Subsidiary();
-
+        subsidiary.setDaysToShipping(10);
         //Arrange
         Order order = new Order();
         order.setIdOrder(1L);

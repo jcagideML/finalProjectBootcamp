@@ -88,7 +88,7 @@ public class UserServiceTest {
                 .credentialsExpired(false)
                 .disabled(false)
                 .build();
-        Subsidiary expected = new Subsidiary(null,"Montevideo subsidiary","Fake addres 123","7470-5556","Uruguay :)",null,null,null);
+        Subsidiary expected = new Subsidiary(null,"Montevideo subsidiary","Fake addres 123","7470-5556","Uruguay :)",10,null,null,null);
 
         //Act
         Subsidiary actual = userService.getSubsidiaryByUsername(userDetails);

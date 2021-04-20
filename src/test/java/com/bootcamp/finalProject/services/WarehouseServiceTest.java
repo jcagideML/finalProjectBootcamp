@@ -2,6 +2,7 @@ package com.bootcamp.finalProject.services;
 
 import com.bootcamp.finalProject.dtos.*;
 import com.bootcamp.finalProject.exceptions.*;
+import com.bootcamp.finalProject.mnemonics.DeliveryStatus;
 import com.bootcamp.finalProject.model.*;
 import com.bootcamp.finalProject.repositories.ISubsidiaryRepository;
 import com.bootcamp.finalProject.repositories.ISubsidiaryStockRepository;
@@ -13,15 +14,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
@@ -437,7 +434,7 @@ public class WarehouseServiceTest {
     }
 
     @Test
-    public void newOrderWithoutPart() throws PartNotExistException, NotEnoughStock, InvalidAccountTypeExtensionException {
+    public void newOrderWithoutPart() {
         //aca hace falta mockear el subsidiary.
         Subsidiary subsidiary = new Subsidiary();
         subsidiary.setDaysToShipping(10);
@@ -484,7 +481,7 @@ public class WarehouseServiceTest {
     }
 
     @Test
-    public void newOrderNotEnoughStock() throws PartNotExistException, NotEnoughStock, InvalidAccountTypeExtensionException {
+    public void newOrderNotEnoughStock() {
         //aca hace falta mockear el subsidiary.
         Subsidiary subsidiary = new Subsidiary();
         subsidiary.setDaysToShipping(10);
@@ -536,7 +533,7 @@ public class WarehouseServiceTest {
     }
 
     @Test
-    public void newOrderInvalidAccountType() throws PartNotExistException, NotEnoughStock, InvalidAccountTypeExtensionException {
+    public void newOrderInvalidAccountType() {
         //aca hace falta mockear el subsidiary.
         Subsidiary subsidiary = new Subsidiary();
         subsidiary.setDaysToShipping(10);
@@ -618,7 +615,7 @@ public class WarehouseServiceTest {
     }
 
     @Test
-    public void findSubsidiaryStockWithException() throws SubsidiaryNotFoundException {
+    public void findSubsidiaryStockWithException() {
         //Arrange
         SubsidiaryStockRequestDTO subsidiaryStockRequestDTO = new SubsidiaryStockRequestDTO();
 
@@ -635,7 +632,6 @@ public class WarehouseServiceTest {
         SubsidiaryResponseDTO.setOrders(ordersDTO);
 
         //Act
-        //when(subsidiaryRepository.findById(subsidiaryStockRequestDTO.getDealerNumber())).thenThrow(SubsidiaryNotFoundException.class);
         when(subsidiaryRepository.findById(subsidiaryStockRequestDTO.getDealerNumber())).thenReturn(Optional.empty());
         when(mapper.toOrderDTO(subsidiary)).thenReturn(SubsidiaryResponseDTO);
 
@@ -643,7 +639,7 @@ public class WarehouseServiceTest {
     }
 
     @Test
-    public void cancelDeliveryStatusTest() throws PartAlreadyExistException {
+    public void cancelDeliveryStatusTest() {
         //Arrange
         Subsidiary subsidiary = new Subsidiary();
         Order order = new Order();
@@ -786,7 +782,7 @@ public class WarehouseServiceTest {
     }
 
     @Test
-    public void changeDeliveryStatusIsconcluded() throws InternalExceptionHandler {
+    public void changeDeliveryStatusIsconcluded() {
         //Arrange
         Subsidiary subsidiary = new Subsidiary();
         subsidiary.setCountry("Argentina");
@@ -821,7 +817,7 @@ public class WarehouseServiceTest {
     }
 
     @Test
-    public void finishDeliveryStatus() throws InternalExceptionHandler {
+    public void finishDeliveryStatus() {
         //Arrange
         Subsidiary subsidiary = new Subsidiary();
         subsidiary.setCountry("Argentina");
@@ -872,5 +868,56 @@ public class WarehouseServiceTest {
         Assertions.assertEquals(expect, order);
     }
 
+    @Test
+    public void checkDelayedOrdersWorks() {
+        SimpleDateFormat datePattern = new SimpleDateFormat("yyyy-MM-dd");
 
+        List<Order> orders = new ArrayList<>();
+        Subsidiary subsidiary = new Subsidiary();
+        subsidiary.setIdSubsidiary(1L);
+        Order o1 = new Order();
+        Order o2 = new Order();
+
+        Date currentDate = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(currentDate);
+        calendar.add(Calendar.DAY_OF_YEAR, 3);
+
+        o1.setIdOrder(1L);
+        o1.setOrderDate(currentDate);
+        o1.setDeliveryDate(calendar.getTime());
+        o1.setSubsidiary(subsidiary);
+        o1.setDeliveryStatus(DeliveryStatus.PENDING);
+        o1.setOrderDetails(new ArrayList<>());
+
+        calendar.add(Calendar.DAY_OF_YEAR, -6);
+
+        o2.setIdOrder(2L);
+        o2.setOrderDate(calendar.getTime());
+        o2.setSubsidiary(subsidiary);
+        o2.setDeliveryStatus(DeliveryStatus.PENDING);
+        o2.setOrderDetails(new ArrayList<>());
+
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        o2.setDeliveryDate(calendar.getTime());
+
+        orders.add(o1);
+        orders.add(o2);
+
+        when(orderRepository.findAll()).thenReturn(orders);
+        when(orderRepository.save(o1)).thenReturn(o1);
+        when(orderRepository.save(o2)).thenReturn(o2);
+
+        List<OrderDTO> result = warehouseService.checkDelayedOrders();
+
+        OrderDTO expected = new OrderDTO();
+        expected.setOrderDate(datePattern.format(o2.getOrderDate()));
+        expected.setDeliveryDate(datePattern.format(o2.getDeliveryDate()));
+        expected.setOrderNumberCM("0001-00000002");
+        expected.setDaysDelayed(2);
+        expected.setOrderDetails(new ArrayList<>());
+        expected.setDeliveryStatus(DeliveryStatus.DELAYED);
+
+        Assertions.assertEquals(expected, result.get(0));
+    }
 }

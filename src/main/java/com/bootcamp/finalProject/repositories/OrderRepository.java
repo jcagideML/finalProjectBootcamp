@@ -16,6 +16,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     /**
      * find all the orders related to the id of a subsidiary
+     *
      * @param idSubsidiary
      * @param sort
      * @return List<Order> related to the id of a subsidiary
@@ -25,6 +26,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     /**
      * find all orders related to a subsidiary id and a delivery status type
+     *
      * @param idSubsidiary
      * @param deliveryStatus
      * @param sort
@@ -34,5 +36,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByIdSubsidiaryAndDeliveryStatus(@Param("idSubsidiary") Long idSubsidiary, @Param("deliveryStatus") String deliveryStatus, Sort sort);
 
 
-    Optional<Order> findByIdOrderAndSubsidiary(@Param("id")Long id,@Param("subsidiary") Subsidiary subsidiary);
+    Optional<Order> findByIdOrderAndSubsidiary(@Param("id") Long id, @Param("subsidiary") Subsidiary subsidiary);
 }

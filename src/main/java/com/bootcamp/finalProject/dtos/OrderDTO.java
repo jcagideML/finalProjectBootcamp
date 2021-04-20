@@ -5,7 +5,6 @@ import lombok.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -13,8 +12,7 @@ import java.util.List;
 @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderDTO
-{
+public class OrderDTO {
     @ApiModelProperty(notes = "Unique identifier of the Order out of the Api \"subsidiaryId-orderID\"",
             example = "0001-00000001",
             required = true,

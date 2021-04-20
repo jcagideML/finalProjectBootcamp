@@ -22,9 +22,9 @@ public class DiscountRate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_discount_rate")
     private Long idDiscountRate;
-    @Column(nullable=false)
+    @Column(nullable = false)
     private String description;
-    @Column(nullable=false)
+    @Column(nullable = false)
     private String discount;
     @OneToMany(mappedBy = "discountRate", cascade = CascadeType.ALL)
     private List<PartRecord> partRecords;

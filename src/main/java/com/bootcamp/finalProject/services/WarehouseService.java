@@ -28,6 +28,7 @@ import static com.bootcamp.finalProject.utils.ValidationPartUtils.deliveryStatus
 public class WarehouseService implements IWarehouseService {
 
     SubsidiaryResponseMapper subsidiaryMapper = new SubsidiaryResponseMapper();
+    OrderResponseMapper orderMapper = new OrderResponseMapper();
 
     @Autowired
     private OrderRepository orderRepository;
@@ -47,16 +48,16 @@ public class WarehouseService implements IWarehouseService {
         initTask();
     }
 
-    private void initTask() {//TODO:REALIZAR EL CHECKORDERS.
+    private void initTask() {
         TimerTask repeatedTask = new TimerTask() {
             public void run() {
-                checkOrders();
+                checkDelayedOrders();
             }
         };
         Timer timer = new Timer("Timer");
 
-        long delay = 10000L; //TODO:averiguar tiempo que tarda la app en comenzar.
-        long period = /*1000L * 60L * 60L * 24L*/10000; //TODO: realizar el chequeo cada 4 horas. Pensar este numero.
+        long delay = 1000L * 60L; //The delay time. The task is executed one minute after the app start.
+        long period = 1000L * 60L * 60L * 12L; //The task is executed two times for day. (millis*seconds*minutes*hours).
         timer.scheduleAtFixedRate(repeatedTask, delay, period);
     }
 
@@ -119,9 +120,15 @@ public class WarehouseService implements IWarehouseService {
         orderReturn.setOrderDetails(orderList);
         orderRepository.save(orderReturn);
 
+        for (OrderDetail orderDetail : orderReturn.getOrderDetails()) {
+            Part partStock = orderDetail.getPartOrder();
+            partStock.setQuantity(partStock.getQuantity() - orderDetail.getQuantity());
+            partRepository.save(partStock);
+        }
+
         SimpleDateFormat datePattern = new SimpleDateFormat("yyyy-MM-dd");
-        //Set return with missing data.
-        order.setOrderNumberCM(completeNumberByLength(String.valueOf(1), 4) + "-" + completeNumberByLength(String.valueOf(orderReturn.getIdOrder()), 8));
+
+        order.setOrderNumberCM(completeNumberByLength(String.valueOf(subsidiary.getIdSubsidiary()), 4) + "-" + completeNumberByLength(String.valueOf(orderReturn.getIdOrder()), 8));
         order.setOrderDate(datePattern.format(orderReturn.getOrderDate()));
         order.setDeliveryDate(datePattern.format(calendar.getTime()));
         order.setDeliveryStatus(DeliveryStatus.PENDING);
@@ -151,18 +158,24 @@ public class WarehouseService implements IWarehouseService {
 
     public void changeDeliveryStatus(String orderNumberCM, String newStatus) throws InternalExceptionHandler {
         Long orderId = Long.valueOf(OrderNumberCMUtil.getNumberOR(orderNumberCM));
-
         Long idSubsidiary = Long.valueOf(OrderNumberCMUtil.getNumberCE(orderNumberCM));
+
         Subsidiary subsidiary = subsidiaryRepository.findById(idSubsidiary).orElseThrow(SubsidiaryNotFoundException::new);
         Order order = orderRepository.findByIdOrderAndSubsidiary(orderId, subsidiary).orElseThrow(OrderIdNotFoundException::new);
 
         if ((order.getDeliveryStatus().equals(DeliveryStatus.PENDING)
                 || order.getDeliveryStatus().equals(DeliveryStatus.DELAYED))) {
 
-            if (newStatus.equals(DeliveryStatus.CANCELED)) {
-                cancelDeliveryStatus(order);
-            } else if (newStatus.equals(DeliveryStatus.FINISHED)) {
-                finishDeliveryStatus(order, subsidiary);
+            switch (newStatus) {
+                case DeliveryStatus.DELAYED:
+                    order.setDeliveryStatus(DeliveryStatus.DELAYED);
+                    break;
+                case DeliveryStatus.CANCELED:
+                    cancelDeliveryStatus(order);
+                    break;
+                case DeliveryStatus.FINISHED:
+                    finishDeliveryStatus(order, subsidiary);
+                    break;
             }
             orderRepository.save(order);
         } else {
@@ -204,7 +217,19 @@ public class WarehouseService implements IWarehouseService {
         order.setDeliveredDate(now);
     }
 
-    public void checkOrders() {
-        System.out.println("Tarea programada realizada con éxito.");//TODO: realizar el chequeo propiamente dicho.
+
+    public List<OrderDTO> checkDelayedOrders() {
+        List<Order> orders = orderRepository.findAll();
+        List<Order> changed = new ArrayList<>();
+        for (Order o : orders) {
+            if (o.getDeliveryStatus().equals(DeliveryStatus.PENDING)) {
+                if (o.getDeliveryDate().before(new Date())) {
+                    o.setDeliveryStatus(DeliveryStatus.DELAYED);
+                    changed.add(o);
+                    orderRepository.save(o);
+                }
+            }
+        }
+        return orderMapper.orderDTOList(changed);
     }
 }

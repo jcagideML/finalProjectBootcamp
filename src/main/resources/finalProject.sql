@@ -52,11 +52,6 @@ UPDATE `parts` SET
 WHERE
     `id_part` = 10;
 
-INSERT INTO `subsidiaries` (`id_subsidiary`, `address`, `country`, `name`, `phone`) VALUES
-(NULL, 'Mi casa', 'Uruguay', 'Mercedez Uruguay', '123456'),
-(NULL, 'Mi direccion', 'Argentina', 'Mercedez Argentina', '789123'),
-(NULL, 'My home', 'Colombia', 'Mercedez Colombia', '3456789');
-
 INSERT INTO `orders` (`id_order`, `delivered_date`, `delivery_date`, `delivery_status`, `order_date`, `id_subsidiary`) VALUES
 (NULL, NULL, '2021-04-09 14:17:58.000000', 'P', '2021-04-01 09:17:58.000000', '1'),
 (NULL, '2021-04-04 14:17:58.000000', '2021-04-04 14:17:58.000000', 'F', '2021-04-01 14:17:58.000000', '2'),

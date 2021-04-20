@@ -1,6 +1,5 @@
 package com.bootcamp.finalProject.utils;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +28,9 @@ public class MapperUtils {
     public static Integer getDifferencesInDays(Date deliveryDate, Date deliveredDate) {
 
         if (deliveredDate != null) {
+            if (deliveredDate.before(deliveryDate)) {
+                return 0;
+            }
             long diffInMillies = Math.abs(deliveryDate.getTime() - deliveredDate.getTime());
             return Math.toIntExact((TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS)));
         } else {

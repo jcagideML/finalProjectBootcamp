@@ -1,11 +1,9 @@
 package com.bootcamp.finalProject.dtos;
 
-
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter

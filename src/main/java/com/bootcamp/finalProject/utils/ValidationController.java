@@ -1,6 +1,5 @@
 package com.bootcamp.finalProject.utils;
 
-import com.bootcamp.finalProject.dtos.DiscountRateDTO;
 import com.bootcamp.finalProject.exceptions.DateEnteredGreaterException;
 import com.bootcamp.finalProject.exceptions.IncorrectParamsGivenException;
 import com.bootcamp.finalProject.exceptions.InternalExceptionHandler;
@@ -8,11 +7,9 @@ import com.bootcamp.finalProject.exceptions.InvalidDateException;
 import com.bootcamp.finalProject.mnemonics.DeliveryStatus;
 import com.bootcamp.finalProject.mnemonics.ExceptionMessage;
 import com.bootcamp.finalProject.mnemonics.QueryType;
-import org.assertj.core.util.DateUtil;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -20,7 +17,7 @@ import java.util.regex.Pattern;
 public class ValidationController {
 
 
-    private static final String FIXED_DATE_PATTERN = "^\\d{4}\\-(0[1-9]|1[012])\\-(0[1-9]|[12][0-9]|3[01])$";
+    private static final String FIXED_DATE_PATTERN = "^\\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$";
 
     public static Date validateDateFormat(String date) throws InternalExceptionHandler {
         if (!Pattern.matches(FIXED_DATE_PATTERN, date)) {
@@ -116,7 +113,6 @@ public class ValidationController {
     }
 
     public static void validateOrderStatus(String orderStatus) throws IncorrectParamsGivenException {
-
         if (!DeliveryStatus.DELIVERY_STATUS_VALUES.contains(orderStatus)) {
             throw new IncorrectParamsGivenException(ExceptionMessage.WRONG_STATUS_ORDER);
         }
@@ -134,23 +130,6 @@ public class ValidationController {
         } catch (Exception e) {
             throw new IncorrectParamsGivenException(ExceptionMessage.NOT_A_NUMBER);
         }
-    }
-
-    /**
-     * verification of the information received for the creation of a DiscountRate in the database
-     * Id being null and the description and the discount are not null
-     *
-     * @param discountRateDTO
-     * @throws IncorrectParamsGivenException
-     */
-    public static void validateDiscountRateDTOParams(DiscountRateDTO discountRateDTO) throws IncorrectParamsGivenException {
-
-        if (discountRateDTO.getIdDiscountRate() != null)
-            throw new IncorrectParamsGivenException("The ID is not required");
-
-        if (discountRateDTO.getDescription().equals(null) || discountRateDTO.getDescription().equals("")
-                || discountRateDTO.getDiscount().equals(null) || discountRateDTO.getDiscount().equals(""))
-            throw new IncorrectParamsGivenException("The information required for a discountRate is incomplete");
     }
 
     public static Long validateProviderId(String id) throws IncorrectParamsGivenException {

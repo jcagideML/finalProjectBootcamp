@@ -7,7 +7,6 @@ import lombok.Setter;
 @Setter
 public class ProviderPartsDTO {
 
-
     private Integer partCode;
 
     private String description;

@@ -620,8 +620,7 @@ public class PartServiceTests {
 
         Part expected = actual.toBuilder().build();
         expected.setDescription(requestPartDTO.getDescription());
-//        actualPart.setLastModification(new Date());
-//      TODO: Averiguar como trabajar fecha en test para fechas autogeneradas en los procedimientos
+
         //act
         partService.updatePart(requestPartDTO);
 

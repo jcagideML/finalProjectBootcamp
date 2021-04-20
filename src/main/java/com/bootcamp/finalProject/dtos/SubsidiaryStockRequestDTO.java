@@ -12,8 +12,8 @@ import javax.validation.constraints.NotNull;
 @ApiModel(description = "fields for a query of stock in a subsidiary")
 public class SubsidiaryStockRequestDTO {
 
-    @NotNull( message = "DealerNumber is required")
-    @ApiModelProperty(  notes = "identifier of the dealer",
+    @NotNull(message = "DealerNumber is required")
+    @ApiModelProperty(notes = "identifier of the dealer",
             example = "34",
             required = true,
             position = 1)

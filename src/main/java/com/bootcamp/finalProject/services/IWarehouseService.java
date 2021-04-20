@@ -18,6 +18,8 @@ import com.bootcamp.finalProject.model.Order;
 import com.bootcamp.finalProject.model.Part;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.List;
+
 public interface IWarehouseService {
     SubsidiaryResponseDTO findSubsidiaryOrders(OrderRequestDTO requestDTO) throws OrderTypeException, DeliveryStatusException, SubsidiaryNotFoundException;
 
@@ -28,4 +30,6 @@ public interface IWarehouseService {
     SubsidiaryStockResponseDTO findSubsidiaryStock(SubsidiaryStockRequestDTO subsidiaryStockRequestDTO) throws SubsidiaryNotFoundException;
 
     OrderDTO newOrder(OrderDTO order, UserDetails user) throws PartAlreadyExistException, InvalidAccountTypeExtensionException, NotEnoughStock, PartNotExistException;
+
+    List<OrderDTO> checkDelayedOrders();
 }

@@ -35,12 +35,14 @@ public class PartService implements IPartService {
     @Autowired
     private PartRepository partRepository;
 
-
     @Autowired
     IProviderRepository providerRepository;
 
     @Autowired
     private DiscountRateRepository discountRateRepository;
+
+    public PartService() {
+    }
 
     public List<PartResponseDTO> findPart(PartRequestDTO partRequest) throws TypeOfQueryException, OrderTypeException {
         List<Part> parts = new ArrayList<>();
@@ -66,7 +68,7 @@ public class PartService implements IPartService {
     @Override
     public Part newPart(PartDTO part) throws Exception {
 
-        if(partRepository.existsByPartCode(part.getPartCode())){
+        if (partRepository.existsByPartCode(part.getPartCode())) {
             throw new PartAlreadyExistException(part.getPartCode());
         }
 
@@ -162,9 +164,9 @@ public class PartService implements IPartService {
             }
             if (partDTO.getDiscountId() != null) {
                 DiscountRate discountRate = existDiscountRateById(partDTO.getDiscountId());
-                if(discountRate != null){
+                if (discountRate != null) {
                     partRecord.setDiscountRate(discountRate);
-                }else{
+                } else {
                     throw new DiscountRateIDNotFoundException();
                 }
             }
@@ -175,21 +177,21 @@ public class PartService implements IPartService {
         }
         if (partDTO.getMakerId() != null) {
             Provider provider = existProviderById(partDTO.getMakerId());
-            if(provider != null){
+            if (provider != null) {
                 part.setProvider(provider);
-            }else{
+            } else {
                 throw new ProviderIdNotFoundException();
             }
             update = true;
         }
         if (update) {
             part.setLastModification(now);
-        }else{
+        } else {
             throw new NotParamsToModifyException();
         }
     }
 
-    private Provider existProviderById(Long id){
+    private Provider existProviderById(Long id) {
         return providerRepository.findById(id).orElse(null);
     }
 
@@ -202,23 +204,22 @@ public class PartService implements IPartService {
 
     public ProviderDTO findProviderById(Long id) throws InternalExceptionHandler {
         Provider provider = existProviderById(id);
-        if(provider == null){
+        if (provider == null) {
             throw new ProviderIdNotFoundException();
         }
         return ProviderMapper.toDTO(provider);
     }
 
     public void saveProvider(ProviderDTO providerDTO) throws InternalExceptionHandler {
-        if(providerDTO.getIdProvider() != null && existProviderById(providerDTO.getIdProvider())==null)
-        {
+        if (providerDTO.getIdProvider() != null && existProviderById(providerDTO.getIdProvider()) == null) {
             throw new ProviderIdNotFoundException();
-        }else{
+        } else {
 
             providerRepository.save(new ModelMapper().map(providerDTO, Provider.class));
         }
     }
 
-    private DiscountRate existDiscountRateById(Long id){
+    private DiscountRate existDiscountRateById(Long id) {
         return discountRateRepository.findById(id).orElse(null);
     }
 
@@ -231,7 +232,7 @@ public class PartService implements IPartService {
     @Override
     public DiscountRateDTO findDiscountRateById(Long id) throws InternalExceptionHandler {
         DiscountRate discountRate = existDiscountRateById(id);
-        if(discountRate == null){
+        if (discountRate == null) {
             throw new DiscountRateIDNotFoundException();
         }
         return DiscountRateMapper.toDTO(discountRate);
@@ -240,9 +241,9 @@ public class PartService implements IPartService {
     @Override
     public void saveDiscountRate(DiscountRateDTO discountRateDTO) throws InternalExceptionHandler {
 
-        if( discountRateDTO.getIdDiscountRate() != null && existDiscountRateById(discountRateDTO.getIdDiscountRate())==null){
+        if (discountRateDTO.getIdDiscountRate() != null && existDiscountRateById(discountRateDTO.getIdDiscountRate()) == null) {
             throw new DiscountRateIDNotFoundException();
-        }else{
+        } else {
             discountRateRepository.save(new ModelMapper().map(discountRateDTO, DiscountRate.class));
         }
     }

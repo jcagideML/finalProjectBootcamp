@@ -28,7 +28,7 @@ public class OrderRequestDTO {
     private String deliveryStatus;
 
     @NotNull
-    @ApiModelProperty(notes = "Unique identifier of the order",
+    @ApiModelProperty(notes = "Unique identifier of the sort",
             example = "1",
             position = 3)
     private Integer order;

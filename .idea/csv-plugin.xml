@@ -3,6 +3,13 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="/src/main/java/com/bootcamp/finalProject/dtos/SubsidiaryStockDTO.java">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/src/main/java/com/bootcamp/finalProject/model/Part.java">
           <value>
             <Attribute>
@@ -24,7 +31,28 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/src/main/java/com/bootcamp/finalProject/services/WarehouseService.java">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/src/main/java/com/bootcamp/finalProject/utils/MapperUtils.java">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/src/main/java/com/bootcamp/finalProject/utils/OrderResponseMapper.java">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/src/main/java/com/bootcamp/finalProject/utils/SubsidiaryResponseMapper.java">
           <value>
             <Attribute>
               <option name="separator" value=";" />

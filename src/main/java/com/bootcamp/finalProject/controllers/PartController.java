@@ -29,7 +29,7 @@ import static com.bootcamp.finalProject.utils.ValidationController.validateDateF
 
 @RestController
 @RequestMapping("/api/v1/parts")
-public class PartController extends CentralController{
+public class PartController extends CentralController {
 
     @Autowired
     IPartService service;
@@ -75,10 +75,11 @@ public class PartController extends CentralController{
 
     /**
      * Updates only a data of a Part with a given DTO.
+     *
      * @param part DTO of a Part with the id and data to be updated.
-     *          *  part.partCode Not Null or Empty.
-     *          *  makerId should exist.
-     *          *  discountId should exist.
+     *             *  part.partCode Not Null or Empty.
+     *             *  makerId should exist.
+     *             *  discountId should exist.
      * @return ResponseEntity<String> OK HTTP code and message if update was successful
      * @throws InternalExceptionHandler if DTO is not correct
      */
@@ -87,15 +88,15 @@ public class PartController extends CentralController{
             value = "Update a part",
             nickname = "Update Part"
     )
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 403, message = "FORBIDDEN"),
             @ApiResponse(code = 402, message = "BAD REQUEST: \n" +
-                                                "* no parameters were received to update. \n" +
-                                                "* not found a provider with this id \n" +
-                                                "* not found a discount rate with this id"),
+                    "* no parameters were received to update. \n" +
+                    "* not found a provider with this id \n" +
+                    "* not found a discount rate with this id"),
             @ApiResponse(code = 404, message = "NOT FOUND: \n" +
-                                                "* part with code xxxxxxxx not exist")
+                    "* part with code xxxxxxxx not exist")
 
     })
     public ResponseEntity<String> updatePart(
@@ -124,7 +125,7 @@ public class PartController extends CentralController{
             value = "Returns a subsidiary with its order list",
             nickname = "Orders for subsidiary"
     )
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 403, message = "FORBIDDEN"),
             @ApiResponse(code = 402, message = "BAD REQUEST: \n" +
@@ -197,21 +198,22 @@ public class PartController extends CentralController{
 
     /**
      * Create a Part with a given DTO.
+     *
      * @param part DTO of a Part with the partCode and data to be created.
-     *          *  all atributes are required.
-     *          *  makerId should exist.
-     *          *  discountId should exist.
+     *             *  all atributes are required.
+     *             *  makerId should exist.
+     *             *  discountId should exist.
      * @return The Part created.
-     * @throws PartAlreadyExistException If exist a Part with this partCode.
+     * @throws PartAlreadyExistException       If exist a Part with this partCode.
      * @throws DiscountRateIDNotFoundException If not exist a DiscountRate with this discountId.
-     * @throws ProviderIdNotFoundException If exist a Provider with this makerId.
+     * @throws ProviderIdNotFoundException     If exist a Provider with this makerId.
      */
     @PostMapping("")
     @ApiOperation(
             value = "Create a new part",
             nickname = "Create Part"
     )
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 403, message = "FORBIDDEN"),
             @ApiResponse(code = 402, message = "BAD REQUEST: \n" +
@@ -234,13 +236,14 @@ public class PartController extends CentralController{
 
     /**
      * Create a Order with a given DTO.
+     *
      * @param order DTO of a Order with the data to be created.
-     *          * all atributes are required.
-     *          * order.orderDetails.partCode should exist.
-     *          * order.orderDetails.quantity It must be less than the stock that the part has.
+     *              * all atributes are required.
+     *              * order.orderDetails.partCode should exist.
+     *              * order.orderDetails.quantity It must be less than the stock that the part has.
      * @return The Order created
-     * @throws PartNotExistException If not exist the Part with this partCode.
-     * @throws NotEnoughStock If the quantity of OrderDetails is more than stock that the part has.
+     * @throws PartNotExistException                If not exist the Part with this partCode.
+     * @throws NotEnoughStock                       If the quantity of OrderDetails is more than stock that the part has.
      * @throws InvalidAccountTypeExtensionException If accountType lenght is different than 1.
      */
     @PostMapping("orders")
@@ -248,7 +251,7 @@ public class PartController extends CentralController{
             value = "Create a new order",
             nickname = "Create Order"
     )
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 403, message = "FORBIDDEN"),
             @ApiResponse(code = 402, message = "BAD REQUEST: \n" +
@@ -258,25 +261,24 @@ public class PartController extends CentralController{
     })
     public ResponseEntity<?> newOrder(
             @ApiParam(value = "Information of the order to be crated", required = true)
-            @RequestBody OrderDTO order) throws Exception
-    {
+            @RequestBody OrderDTO order) throws Exception {
         UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
-        if(order != null)
-        {
-            warehouseService.newOrder(order,user);
+        if (order != null) {
+            warehouseService.newOrder(order, user);
         }
         return ResponseEntity.status(HttpStatus.OK).body(order);
     }
 
     /**
      * Update the OrderStatus from the parameter
+     *
      * @param orderNumberCM "0001-00000003" -> "0001" is idSubsidiary - "00000003" is idOrder
-     * @param orderStatus ["P","D","F","C"] -> Pending, Delayed, Finished, Cancelled
+     * @param orderStatus   ["P","D","F","C"] -> Pending, Delayed, Finished, Cancelled
      * @return ResponseEntity<String> OK HTTP code and message if update was successful
-     * @throws IncorrectParamsGivenException order status does not exist.
-     * @throws SubsidiaryNotFoundException IF Not Found Subsidiary with idSubsidiary.
-     * @throws OrderIdNotFoundException IF Not Found Order with idSubsidiary and idOrder.
+     * @throws IncorrectParamsGivenException           order status does not exist.
+     * @throws SubsidiaryNotFoundException             IF Not Found Subsidiary with idSubsidiary.
+     * @throws OrderIdNotFoundException                IF Not Found Order with idSubsidiary and idOrder.
      * @throws OrderDeliveryStatusIsconcludedException OrderDeliveryStatus must be Pending "P" or Delayed "D".
      */
     @PutMapping("order/{orderNumberCM}/{orderStatus}")
@@ -284,7 +286,7 @@ public class PartController extends CentralController{
             value = "Update a status order",
             nickname = "Update Status Order"
     )
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 403, message = "FORBIDDEN"),
             @ApiResponse(code = 402, message = "BAD REQUEST: \n" +
@@ -305,5 +307,16 @@ public class PartController extends CentralController{
 
         warehouseService.changeDeliveryStatus(orderNumberCM, orderStatus);
         return ResponseEntity.status(HttpStatus.OK).body("Order updated successfully");
+    }
+
+    /**
+     * Updates the orders that their state is pending and the
+     * DeliveryDate is before that the current date.
+     *
+     * @return a List of the orders updated.
+     */
+    @GetMapping("order/checkDelayed")
+    public List<OrderDTO> updateDelayedOrders() {
+        return warehouseService.checkDelayedOrders();
     }
 }
